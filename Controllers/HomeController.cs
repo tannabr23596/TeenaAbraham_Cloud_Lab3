@@ -18,10 +18,10 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        /*public IActionResult Privacy()
         {
             return View();
-        }
+        }*/
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

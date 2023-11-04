@@ -44,8 +44,8 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             }
             return RedirectToAction("ListMovies");
         }
-        [HttpGet]
-        public async Task<IActionResult> ListMovies()
+       /* [HttpGet]
+        public async Task<IActionResult> ListMoviesGet()
         {
             // Fetch distinct genres and ratings
             var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
@@ -62,7 +62,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             };
 
             return View(model);
-        }
+        }*/
 
 
         private async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatingsAsync()

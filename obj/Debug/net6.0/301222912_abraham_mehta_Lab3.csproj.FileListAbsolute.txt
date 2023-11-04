@@ -270,3 +270,4 @@ D:\devops_1\301222912_abraham_mehta_Lab3\bin\Debug\net6.0\Polly.dll
 D:\devops_1\301222912_abraham_mehta_Lab3\bin\Debug\net6.0\Polly.Core.dll
 D:\devops_1\301222912_abraham_mehta_Lab3\bin\Debug\net6.0\App.config
 D:\devops_1\301222912_abraham_mehta_Lab3\bin\Debug\net6.0\301222912_abraham_mehta_Lab3.dll.config
+D:\devops_1\301222912_abraham_mehta_Lab3\bin\Debug\net6.0\AWSSDK.S3.dll

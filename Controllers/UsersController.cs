@@ -6,25 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using _301222912_abraham_mehta_Lab3.Models;
+using Amazon.DynamoDBv2.DataModel;
+using Polly;
+using Amazon.DynamoDBv2;
 
 namespace _301222912_abraham_mehta_Lab3.Controllers
 {
     public class UsersController : Controller
     {
         private readonly MovieDbContext _context;
-
+        public static DynamoDBContext dBContext = new DynamoDBContext(Helper.dynamoClient);
         public UsersController(MovieDbContext context)
         {
             _context = context;
         }
 
-        // GET: Users
-        public async Task<IActionResult> Index()
-        {
-              return _context.User != null ? 
-                          View(await _context.User.ToListAsync()) :
-                          Problem("Entity set 'MovieDbContext.User'  is null.");
-        }
+        
 
         // GET: Users/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -149,19 +146,28 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             {
                 _context.User.Remove(user);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool UserExists(int id)
         {
-          return (_context.User?.Any(e => e.UserId == id)).GetValueOrDefault();
+            return (_context.User?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+        public IActionResult Index()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
         }
         [HttpPost]
         public IActionResult Register(User user)
         {
-            
+
             if (ModelState.IsValid)
             {
                 _context.User.Add(user);
@@ -172,10 +178,10 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             return View(user); // Return the registration view with validation errors.
         }
         [HttpPost]
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
             // Query the database to find a user with the provided username
-            var user = _context.User.FirstOrDefault(u => u.Email == username);
+            var user = await Task.Run(() => _context.User.FirstOrDefault(u => u.Email == username));
 
             if (user != null && user.Password == password)
             {
@@ -188,12 +194,52 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
                 Response.Cookies.Append("UserId", user.UserId.ToString(), cookieOptions);
 
-                return RedirectToAction("ListMovies"); // Redirect to a protected area upon successful login.
+                // Fetch distinct genres and ratings
+                var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+                // Query DynamoDB to fetch all movies
+                var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+
+                // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+                var model = new MovieListViewModel
+                {
+                    Genres = distinctGenres,
+                    Ratings = distinctRatings,
+                    Movies = allMovies
+                };
+
+                return View ("ListMovies", model);
+                // Redirect to a protected area upon successful login.
             }
 
             // Authentication failed; show an error message.
             ViewBag.ErrorMessage = "Invalid username or password";
             return View("Login"); // Return the login view with an error message.
+        }
+        private async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatingsAsync()
+        {
+            var genres = new List<string>();
+            var ratings = new List<double>();
+
+            
+                var config = new DynamoDBContextConfig { ConsistentRead = true };
+                var context = new DynamoDBContext(Helper.dynamoClient, config);
+
+                var scanConditions = new List<ScanCondition>();
+                var search = context.ScanAsync<Movie>(scanConditions);
+
+                List<Movie> movies = new List<Movie>();
+                do
+                {
+                    var searchResponse = await search.GetNextSetAsync();
+                    movies.AddRange(searchResponse);
+                } while (!search.IsDone);
+
+                genres = movies.Select(movie => movie.movieGenre).Distinct().ToList();
+                ratings = movies.Select(movie => movie.movieRating).Distinct().ToList();
+            
+
+            return (genres, ratings);
         }
     }
 }
