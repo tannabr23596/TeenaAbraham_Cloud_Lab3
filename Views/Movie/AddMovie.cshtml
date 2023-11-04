@@ -1,4 +1,48 @@
-﻿@page
-@model _301222912_abraham_mehta_Lab3.Views.Movie.AddMovieModel
+﻿@model MovieViewModel
+
 @{
+    ViewData["Title"] = "Add Movie";
+    Layout = "_Layout"; // You can set the layout for your page
 }
+
+<h1>Add a Movie</h1>
+
+<form asp-controller="Movie" asp-action="Add" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="MovieTitle">Title</label>
+        <input asp-for="MovieTitle" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieDirectors">Directors</label>
+        <input asp-for="MovieDirectors" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieGenre">Genre</label>
+        <select asp-for="MovieGenre" class="form-control" required>
+            <option value="Thriller">Thriller</option>
+            <option value="Romance">Romance</option>
+            <option value="Sci-Fiction">Sci-Fiction</option>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieRating">Rating</label>
+        <input asp-for="MovieRating" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieReleaseTime">Release Date</label>
+        <input asp-for="MovieReleaseTime" type="date" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieVideo">Movie Video</label>
+        <input asp-for="MovieVideo" type="file" class="form-control-file" accept="video/*" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Movie</button>
+</form>
