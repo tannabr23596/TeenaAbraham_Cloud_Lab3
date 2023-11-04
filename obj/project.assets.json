@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "AWSSDK.Core/3.7.204.10": {
+      "AWSSDK.Core/3.7.204.12": {
         "type": "package",
         "compile": {
           "lib/netcoreapp3.1/AWSSDK.Core.dll": {
@@ -27,6 +27,22 @@
         },
         "runtime": {
           "lib/netcoreapp3.1/AWSSDK.DynamoDBv2.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
+      "AWSSDK.S3/3.7.205.22": {
+        "type": "package",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.204.12, 4.0.0)"
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {
             "related": ".pdb;.xml"
           }
         }
@@ -3919,15 +3935,15 @@
     }
   },
   "libraries": {
-    "AWSSDK.Core/3.7.204.10": {
-      "sha512": "wYTTmT2C8aik3AxQlOVTH2JpsEnprUCbmeImj04nv1bmfw/vhfh1egXX9/F4ptQF8RReMS4tWIS07csfFRG+Kg==",
+    "AWSSDK.Core/3.7.204.12": {
+      "sha512": "iTiZuiq04nUEgTVvydFg5yTtBNCauztVXA/nbibb875g3xFk1ZDxnVw6MdBI8jDT9tuPHg8I5AG4qN7rWYnUAA==",
       "type": "package",
-      "path": "awssdk.core/3.7.204.10",
+      "path": "awssdk.core/3.7.204.12",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "awssdk.core.3.7.204.10.nupkg.sha512",
+        "awssdk.core.3.7.204.12.nupkg.sha512",
         "awssdk.core.nuspec",
         "images/AWSLogo.png",
         "lib/net35/AWSSDK.Core.dll",
@@ -3970,6 +3986,35 @@
         "lib/netstandard2.0/AWSSDK.DynamoDBv2.dll",
         "lib/netstandard2.0/AWSSDK.DynamoDBv2.pdb",
         "lib/netstandard2.0/AWSSDK.DynamoDBv2.xml",
+        "tools/install.ps1",
+        "tools/uninstall.ps1"
+      ]
+    },
+    "AWSSDK.S3/3.7.205.22": {
+      "sha512": "NTESNeLK7bfzlkBk4PE1vESrkd+er5h5fL90Lox3eOUu+bLN9bS1/5h2mnMMUc5PvQlH+nemPGd6jujp95Gk7A==",
+      "type": "package",
+      "path": "awssdk.s3/3.7.205.22",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "analyzers/dotnet/cs/AWSSDK.S3.CodeAnalysis.dll",
+        "analyzers/dotnet/cs/SharedAnalysisCode.dll",
+        "awssdk.s3.3.7.205.22.nupkg.sha512",
+        "awssdk.s3.nuspec",
+        "images/AWSLogo.png",
+        "lib/net35/AWSSDK.S3.dll",
+        "lib/net35/AWSSDK.S3.pdb",
+        "lib/net35/AWSSDK.S3.xml",
+        "lib/net45/AWSSDK.S3.dll",
+        "lib/net45/AWSSDK.S3.pdb",
+        "lib/net45/AWSSDK.S3.xml",
+        "lib/netcoreapp3.1/AWSSDK.S3.dll",
+        "lib/netcoreapp3.1/AWSSDK.S3.pdb",
+        "lib/netcoreapp3.1/AWSSDK.S3.xml",
+        "lib/netstandard2.0/AWSSDK.S3.dll",
+        "lib/netstandard2.0/AWSSDK.S3.pdb",
+        "lib/netstandard2.0/AWSSDK.S3.xml",
         "tools/install.ps1",
         "tools/uninstall.ps1"
       ]
@@ -11208,6 +11253,7 @@
   "projectFileDependencyGroups": {
     "net6.0": [
       "AWSSDK.DynamoDBv2 >= 3.7.203.11",
+      "AWSSDK.S3 >= 3.7.205.22",
       "Microsoft.EntityFrameworkCore.SqlServer >= 7.0.13",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.13",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 6.0.16",
@@ -11262,6 +11308,10 @@
           "AWSSDK.DynamoDBv2": {
             "target": "Package",
             "version": "[3.7.203.11, )"
+          },
+          "AWSSDK.S3": {
+            "target": "Package",
+            "version": "[3.7.205.22, )"
           },
           "Microsoft.EntityFrameworkCore.SqlServer": {
             "target": "Package",

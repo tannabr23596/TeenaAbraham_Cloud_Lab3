@@ -48,6 +48,10 @@
               "target": "Package",
               "version": "[3.7.203.11, )"
             },
+            "AWSSDK.S3": {
+              "target": "Package",
+              "version": "[3.7.205.22, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[7.0.13, )"

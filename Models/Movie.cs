@@ -25,6 +25,12 @@ namespace _301222912_abraham_mehta_Lab3.Models
 
         [DynamoDBProperty("movieReleaseTime")]
         public string movieReleaseTime { get; set; }
+
+        [DynamoDBProperty("userId")]
+        public string userId { get; set; }
+
+        [DynamoDBProperty("movieVideoURL")]
+        public string movieVideoURL { get; set; }
     }
 
     public class MovieComment

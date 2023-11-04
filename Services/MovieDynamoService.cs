@@ -12,7 +12,7 @@ namespace _301222912_abraham_mehta_Lab3.Services
         public async Task<List<Movie>> GetMovieList(int userId)
         {
             List<Movie> movieList = new List<Movie>();
-            dBContext = new DynamoDBContext(Helper.client);
+            dBContext = new DynamoDBContext(Helper.dynamoClient);
 
             // Assuming userId is a partition key
             var config = new DynamoDBOperationConfig
@@ -44,6 +44,21 @@ namespace _301222912_abraham_mehta_Lab3.Services
 
             return movieList;
         }
+        public async Task SaveNewMovie(Movie movie)
+        {
+            // Save the data to DynamoDB
+            await dBContext.SaveAsync(movie);
+        }
 
+        public async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatings()
+        {
+            var scanConfig = new ScanOperationConfig();
+            var movies = await dBContext.FromScanAsync<Movie>(scanConfig).GetRemainingAsync();
+
+            var distinctGenres = movies.Select(m => m.movieGenre).Distinct().ToList();
+            var distinctRatings = movies.Select(m => m.movieRating).Distinct().ToList();
+
+            return (distinctGenres, distinctRatings);
+        }
     }
 }

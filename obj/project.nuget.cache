@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "UCdpfb1/IhpTvitP5wPs3O+wjs3fNubfnKFNXma0iuK61j/Bnebw0YbLoDgJVcB3e1c2VQHlkUUMSv4anANI9A==",
+  "dgSpecHash": "Ri7r5/gigqNLT4qda0lpEGvYJDvnEKqfcifUVAotm+fPluspbmOGBpfpOsngVCj518N640aBh8P2iBYCyQcoWg==",
   "success": true,
   "projectFilePath": "D:\\devops_1\\301222912_abraham_mehta_Lab3\\301222912_abraham_mehta_Lab3.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\User\\.nuget\\packages\\awssdk.core\\3.7.204.10\\awssdk.core.3.7.204.10.nupkg.sha512",
+    "C:\\Users\\User\\.nuget\\packages\\awssdk.core\\3.7.204.12\\awssdk.core.3.7.204.12.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\awssdk.dynamodbv2\\3.7.203.11\\awssdk.dynamodbv2.3.7.203.11.nupkg.sha512",
+    "C:\\Users\\User\\.nuget\\packages\\awssdk.s3\\3.7.205.22\\awssdk.s3.3.7.205.22.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
