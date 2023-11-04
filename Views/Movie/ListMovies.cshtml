@@ -1,0 +1,30 @@
+﻿@model List<Movie>
+@{
+    ViewData["Title"] = "List Movies";
+}
+
+<h1>List of Movies</h1>
+
+<div class="row">
+    @foreach (var movie in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="images/listmovies.jpg" class="card-img-top" alt="Movie Poster">
+                <div class="card-body">
+                    <h5 class="card-title">@movie.movieTitle</h5>
+                    <p class="card-text"><strong>Genre:</strong> @movie.movieGenre</p>
+                    <p class="card-text"><strong>Rating:</strong> @movie.movieRating</p>
+                    <p class="card-text"><strong>Directors:</strong> @string.Join(", ", movie.movieDirectors)</p>
+                    <p class="card-text"><strong>Release Time:</strong> @movie.movieReleaseTime</p>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="btn-group">
+                        <a class="btn btn-primary" href="#">Edit</a>
+                        <a class="btn btn-danger" href="#">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
