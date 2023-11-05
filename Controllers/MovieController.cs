@@ -293,5 +293,36 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             return null;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteMovie(string movieId)
+        {
+            bool dynamoDeleteStatus;
+            // Use the 'movie' object in your controller action
+            // You can perform any necessary processing here
+            try
+            {
+                dynamoDeleteStatus = await dynamoServe.deleteMovie(movieId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+            var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+            // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+            var modelView = new MovieListViewModel
+            {
+                Genres = distinctGenres,
+                Ratings = distinctRatings,
+                Movies = allMovies
+            };
+            
+        
+          return View("ListMovies", modelView);
+
     }
+
+}
 }

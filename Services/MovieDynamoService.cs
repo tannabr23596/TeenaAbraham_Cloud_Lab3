@@ -61,5 +61,23 @@ namespace _301222912_abraham_mehta_Lab3.Services
 
             return (distinctGenres, distinctRatings);
         }
+        internal async Task<bool> deleteMovie(string movieIdArg)
+        {
+            var context = new DynamoDBContext(Helper.dynamoClient);
+            var primaryKey = new Movie
+            {
+                movieId = movieIdArg,
+            };
+            try
+            {
+                await context.DeleteAsync(primaryKey);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
     }
 }
