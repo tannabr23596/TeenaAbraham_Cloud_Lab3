@@ -1,0 +1,66 @@
+﻿@model MovieViewModel
+
+@{
+    ViewData["Title"] = "Edit Movie";
+    Layout = "_Layout"; // Set your desired layout
+}
+
+<h1>Edit Movie</h1>
+
+<form aasp-controller="Movie" asp-action="EditMoviePost" method="post">
+    <div class="form-group">
+        <label asp-for="MovieId">Movie ID</label>
+        <input asp-for="MovieId" class="form-control" disabled>
+    </div>
+    <div class="form-group">
+        <label asp-for="MovieTitle">Title</label>
+        <input asp-for="MovieTitle" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieDirectorsInput">Directors</label>
+        <input asp-for="MovieDirectorsInput" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieGenre">Genre</label>
+        <select asp-for="MovieGenre" class="form-control" required>
+            <option value="Thriller">Thriller</option>
+            <option value="Romance">Romance</option>
+            <option value="Sci-Fiction">Sci-Fiction</option>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieRating">Rating</label>
+        <input asp-for="MovieRating" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MovieReleaseTime">Release Date</label>
+        <input asp-for="MovieReleaseTime" type="date" class="form-control" required>
+    </div>
+
+    <!-- Display the existing movie video (if available) -->
+   <div class="form-group">
+       <label asp-for="MovieURL">Current Movie URL</label>
+        <input asp-for="MovieURL" class="form-control" disabled required>
+    </div>
+    </div>
+
+    <div class="form-group">
+        <label for="ReplaceVideo">Replace Video</label>
+        <input type="checkbox" asp-for="ReplaceVideo" type="checkbox" id="ReplaceVideo" name="ReplaceVideo value="true">
+        <label for="ReplaceVideo">Check to replace the video</label>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NewMovieVideo">New Movie Video (optional)</label>
+        <input asp-for="NewMovieVideo" type="file" class="form-control-file" accept="video/*">
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

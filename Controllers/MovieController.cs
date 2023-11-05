@@ -125,7 +125,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
             return (genres, ratings);
         }
-        [HttpPost]
+        [HttpPost("/filteredMovie")]
         public async Task<IActionResult> ListMovies(MovieListViewModel model)
         {
             // Fetch distinct genres and ratings
@@ -142,7 +142,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             model.Genres = distinctGenres;
             model.Ratings = distinctRatings;
 
-            return View(model);
+            return View("ListMovies",model);
         }
         private List<Movie> FilterMovies(List<Movie> movies, string selectedGenre, double selectedRating)
         {
@@ -157,6 +157,140 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             }
 
             return movies;
+        }
+
+
+        [HttpPost("/editMoviePost")]
+        public async Task<IActionResult> EditMoviePost(MovieViewModel model,bool replaceVideo)
+        {
+            MovieListViewModel mView = new MovieListViewModel();
+            if (Request.Cookies.TryGetValue("MovieId", out string movieId))
+            {
+                // Load the existing movie from DynamoDB
+                Movie existingMovie = await GetMovieByMovieIdAsync(movieId);
+
+                if (existingMovie == null)
+                {
+                    return NotFound();
+                }
+
+
+                if (replaceVideo && model.NewMovieVideo != null)
+                {
+                    // Replace the existing video URL with the new one
+                    string newVideoUrl = await s3Service.saveFiles(model.NewMovieVideo);
+                    existingMovie.movieVideoURL = newVideoUrl;
+                }
+
+                // Update other properties as needed
+
+                if (!string.IsNullOrWhiteSpace(model.MovieTitle))
+                {
+                    existingMovie.movieTitle = model.MovieTitle;
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.MovieGenre))
+                {
+                    existingMovie.movieGenre = model.MovieGenre;
+                }
+
+                if (model.MovieRating.ToString() != null)
+                {
+                    existingMovie.movieRating = model.MovieRating;
+                }
+
+                if (model.MovieDirectors != null && model.MovieDirectors.Any())
+                {
+                    existingMovie.movieDirectors = model.MovieDirectorsInput.Split(',').Select(d => d.Trim()).ToList();
+                }
+
+                
+                    existingMovie.movieReleaseTime = model.MovieReleaseTime;
+                
+
+                // Save the edited movie back to DynamoDB
+                await dBContext.SaveAsync(existingMovie);
+
+                var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+                var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+                // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+                var modelView = new MovieListViewModel
+                {
+                    Genres = distinctGenres,
+                    Ratings = distinctRatings,
+                    Movies = allMovies
+                };
+                mView = modelView;
+            }
+                return View("ListMovies", mView);
+            
+
+                   
+        }
+
+
+         [HttpGet]
+        public async Task<IActionResult> EditMovie(string movieId)
+        {
+            if (string.IsNullOrEmpty(movieId))
+            {
+                return BadRequest();
+            }
+
+            var movie = await GetMovieByMovieIdAsync(movieId);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddYears(1), // Set the expiration date (adjust as needed)
+                IsEssential = true // Make the cookie essential for sessions
+            };
+
+            Response.Cookies.Append("MovieId", movieId, cookieOptions);
+
+            IFormFile video = await ConvertVideoUrlToIFormFileAsync(movie.movieVideoURL);
+            var movieViewModel = new MovieViewModel
+            {
+                MovieId = movie.movieId,
+                MovieTitle = movie.movieTitle,
+                MovieGenre = movie.movieGenre,
+                MovieRating = movie.movieRating,
+                MovieDirectorsInput = string.Join(", ", movie.movieDirectors),
+                MovieReleaseTime = movie.movieReleaseTime,
+                MovieURL = movie.movieVideoURL
+            };
+
+            // You can pass the movie to the view for editing
+            return View(movieViewModel);
+        }
+        private async Task<Movie> GetMovieByMovieIdAsync(string movieId)
+        {
+            return await dBContext.LoadAsync<Movie>(movieId);
+        }
+        public async Task<IFormFile> ConvertVideoUrlToIFormFileAsync(string videoUrl)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.GetAsync(videoUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Stream videoStream = await response.Content.ReadAsStreamAsync();
+
+                    // Create an IFormFile from the downloaded stream
+                    IFormFile videoFile = new FormFile(videoStream, 0, videoStream.Length, "videoFile", Path.GetFileName(videoUrl));
+
+                    return videoFile;
+                }
+
+                // Handle the case when the download fails or the URL is invalid
+            }
+
+            return null;
         }
 
     }
