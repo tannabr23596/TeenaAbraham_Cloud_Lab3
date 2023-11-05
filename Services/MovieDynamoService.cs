@@ -46,8 +46,9 @@ namespace _301222912_abraham_mehta_Lab3.Services
         }
         public async Task SaveNewMovie(Movie movie)
         {
+            var context = new DynamoDBContext(Helper.dynamoClient);
             // Save the data to DynamoDB
-            await dBContext.SaveAsync(movie);
+            await context.SaveAsync(movie);
         }
 
         public async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatings()

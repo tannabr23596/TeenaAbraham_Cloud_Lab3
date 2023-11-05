@@ -6,6 +6,8 @@
         public string MovieGenre { get; set; }
         public double MovieRating { get; set; }
         public List<string> MovieDirectors { get; set; }
+
+        public string MovieDirectorsInput { get; set; }
         public string MovieReleaseTime { get; set; }
         public IFormFile MovieVideo { get; set; } 
     }

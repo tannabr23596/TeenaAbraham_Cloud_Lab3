@@ -7,15 +7,15 @@
 
 <h1>Add a Movie</h1>
 
-<form asp-controller="Movie" asp-action="Add" method="post" enctype="multipart/form-data">
+<form action="addMoviePost" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="MovieTitle">Title</label>
         <input asp-for="MovieTitle" class="form-control" required>
     </div>
 
     <div class="form-group">
-        <label asp-for="MovieDirectors">Directors</label>
-        <input asp-for="MovieDirectors" class="form-control" required>
+        <label asp-for="MovieDirectorsInput">Directors</label>
+        <input asp-for="MovieDirectorsInput" class="form-control" required>
     </div>
 
     <div class="form-group">

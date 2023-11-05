@@ -12,23 +12,30 @@
             <option value="">All Genres</option>
         </select>
     </div>
-
+    <br/>
+    <br/>
     <div class="form-group">
         <label for="selectedRating">Select Rating:</label>
         <select class="form-control" id="selectedRating" asp-for="SelectedRating" asp-items="new SelectList(Model.Ratings)">
             <option value="0">All Ratings</option>
         </select>
     </div>
-
+    <br/>
     <button type="submit" class="btn btn-primary">Filter Movies</button>
 </form>
-
+<br/>
+<br/>
+<div class="text-center">
+    <a class="btn btn-success" href="/addMovie">Add Movie</a>
+</div>
+<br/>
+<br/>
 <div class="row">
     @foreach (var movie in Model.Movies)
     {
                 <div class="col-md-4 mb-4">
                     <div class="card">
-                        <img src="images/listmovies.jpg" class="card-img-top" alt="Movie Poster">
+                            <img src="~/images/signin.jpg" class="card-img-top" alt="Movie Poster">
                         <div class="card-body">
                             <h5 class="card-title">@movie.movieTitle</h5>
                             <p class="card-text"><strong>Genre:</strong> @movie.movieGenre</p>

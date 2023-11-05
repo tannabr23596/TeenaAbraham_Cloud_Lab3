@@ -12,57 +12,93 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
         public MovieDynamoService dynamoServe = new MovieDynamoService();
         public MovieS3Service s3Service = new MovieS3Service();
         public static DynamoDBContext dBContext = new DynamoDBContext(Helper.dynamoClient);
-        [HttpGet]
-        public IActionResult Add()
+        
+        
+        [HttpGet("/addMovie")]
+        public IActionResult AddMovie()
         {
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add(MovieViewModel model)
+        [HttpPost("/addMoviePost")]
+        public async Task<IActionResult> AddMovie(MovieViewModel model)
         {
-            if (ModelState.IsValid)
-            {
+           
                 if (HttpContext.Request.Cookies.TryGetValue("userId", out string userId))
                 {
 
                     String movieUrl = await s3Service.saveFiles(model.MovieVideo);
-                    var newMovie = new Movie
+                    if (!string.IsNullOrEmpty(model.MovieDirectorsInput))
                     {
-                        movieId = Guid.NewGuid().ToString(),
-                        movieTitle = model.MovieTitle,
-                        movieGenre = model.MovieGenre,
-                        movieRating = model.MovieRating,
-                        movieDirectors = model.MovieDirectors,
-                        movieReleaseTime = model.MovieReleaseTime,
-                        userId = userId, // Add userId from cookies
-                        movieVideoURL = movieUrl
-                    };
+                        model.MovieDirectors = model.MovieDirectorsInput.Split(',').Select(d => d.Trim()).ToList();
+                    }
+                MovieComment movieComment = new MovieComment();
+                List<MovieComment> comments = new List<MovieComment>();
+                comments.Add(movieComment);
+                int seed = GenerateUniqueSeed();  // Implement GenerateUniqueSeed() with your unique logic
+                Random random = new Random(seed);
+                int randomMovieId = random.Next();
+                var newMovie = new Movie
+                {
+                    movieId = randomMovieId.ToString(),
+                    movieTitle = model.MovieTitle,
+                    movieGenre = model.MovieGenre,
+                    movieRating = model.MovieRating,
+                    movieDirectors = model.MovieDirectors,
+                    movieReleaseTime = model.MovieReleaseTime,
+                    userId = userId, // Add userId from cookies
+                    movieVideoURL = movieUrl,
+                    movieComments = comments
+                };
                     await dynamoServe.SaveNewMovie(newMovie);
 
                 }
-            }
-            return RedirectToAction("ListMovies");
-        }
-       /* [HttpGet]
-        public async Task<IActionResult> ListMoviesGet()
-        {
-            // Fetch distinct genres and ratings
+            var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
             var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
 
-            // Query DynamoDB to fetch all movies
-            var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
-
             // Create a model that includes distinct genres, distinct ratings, and the list of all movies
-            var model = new MovieListViewModel
+            var modelView = new MovieListViewModel
             {
                 Genres = distinctGenres,
                 Ratings = distinctRatings,
                 Movies = allMovies
             };
 
-            return View(model);
-        }*/
+            return View("ListMovies", modelView);
+        }
+        private int GenerateUniqueSeed()
+        {
+            // Generate a seed based on the current timestamp and an application-specific identifier (e.g., your application's assembly name).
+            string applicationIdentifier = System.Reflection.Assembly.GetEntryAssembly().GetName().Name; // Get your application's assembly name
+
+            // Combine the current timestamp with the application identifier
+            string seedString = DateTime.Now.Ticks + applicationIdentifier;
+
+            // Use a hash function to generate a hash code from the combined string
+            int hashCode = seedString.GetHashCode();
+
+            return hashCode;
+        }
+
+        /* [HttpGet]
+         public async Task<IActionResult> ListMoviesGet()
+         {
+             // Fetch distinct genres and ratings
+             var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+             // Query DynamoDB to fetch all movies
+             var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+
+             // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+             var model = new MovieListViewModel
+             {
+                 Genres = distinctGenres,
+                 Ratings = distinctRatings,
+                 Movies = allMovies
+             };
+
+             return View(model);
+         }*/
 
 
         private async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatingsAsync()
@@ -70,10 +106,8 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             var genres = new List<string>();
             var ratings = new List<double>();
 
-            using (var client = new AmazonDynamoDBClient())
-            {
                 var config = new DynamoDBContextConfig { ConsistentRead = true };
-                var context = new DynamoDBContext(client, config);
+                var context = new DynamoDBContext(Helper.dynamoClient, config);
 
                 var scanConditions = new List<ScanCondition>();
                 var search = context.ScanAsync<Movie>(scanConditions);
@@ -87,7 +121,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
                 genres = movies.Select(movie => movie.movieGenre).Distinct().ToList();
                 ratings = movies.Select(movie => movie.movieRating).Distinct().ToList();
-            }
+            
 
             return (genres, ratings);
         }
