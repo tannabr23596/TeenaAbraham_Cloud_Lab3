@@ -2,7 +2,9 @@
 using _301222912_abraham_mehta_Lab3.Services;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace _301222912_abraham_mehta_Lab3.Controllers
@@ -48,7 +50,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
                     movieReleaseTime = model.MovieReleaseTime,
                     userId = userId, // Add userId from cookies
                     movieVideoURL = movieUrl,
-                    movieComments = comments
+                    //movieComments = comments,
                 };
                     await dynamoServe.SaveNewMovie(newMovie);
 
@@ -323,6 +325,123 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
           return View("ListMovies", modelView);
 
     }
+        public async Task<IActionResult> GiveComments(string movieId)
+        {
+            //movieId = HttpContext.Request.Cookies["MovieId"];
+            // Create a cookie with the UserId
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddYears(1), // Set the expiration date (adjust as needed)
+                IsEssential = true // Make the cookie essential for sessions
+            };
+            string userId = HttpContext.Request.Cookies["userId"];
+            Response.Cookies.Append("MovieId", movieId, cookieOptions);
 
-}
+            var movie = await GetMovieByMovieIdAsync(movieId);
+            List<MovieComment> comments = movie.movieComments;
+                CommentViewModel viewModel = new CommentViewModel
+            {
+                UserId = userId,
+                MovieId = movieId,
+                MovieComments = comments
+            };
+
+            if (viewModel == null)
+            {
+                // Handle the case where the movie is not found (e.g., show an error message or redirect).
+                return NotFound();
+            }
+
+            return View("ListComments", viewModel);
+        }
+        // POST method to add a comment
+        [HttpPost("/addComments")]
+        public async Task<IActionResult> AddComment(string comment)
+        {
+            var movie = new Movie();
+            if (HttpContext.Request.Cookies.TryGetValue("userId", out string userIdSaved)
+                && HttpContext.Request.Cookies.TryGetValue("MovieId", out string movieIdSaved))
+            {
+                int seed = GenerateUniqueSeed();  // Implement GenerateUniqueSeed() with your unique logic
+                Random random = new Random(seed);
+                int randomCommentId = random.Next();
+                // Create a new MovieComment object with the comment details
+                MovieComment newComment = new MovieComment
+                {
+                    userId = userIdSaved, // You should replace this with the actual user ID of the commenter
+                    comment = comment,
+                    commentedTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    commentId = randomCommentId.ToString()// Generate a unique comment ID
+                };
+
+                // Fetch the movie based on the movie ID
+                movie = await GetMovieByMovieIdAsync(movieIdSaved);
+
+                if (movie == null)
+                {
+                    // Handle the case where the movie is not found (e.g., show an error message or redirect).
+                    return NotFound();
+                }
+
+                // Add the new comment to the movie's comment list
+                if (movie.movieComments == null)
+                {
+                    List<MovieComment> cmnts = new List<MovieComment>();
+                    cmnts.Add(newComment);
+                    movie.movieComments = cmnts;
+
+                }
+                else
+                {
+                    movie.movieComments.Add(newComment);
+                }
+                
+
+                // Save the updated movie back to your data store (e.g., DynamoDB)
+                await dBContext.SaveAsync(movie);
+            }
+            // Redirect back to the "givecomments" view with the updated movie data
+            var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+            var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+            // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+            var modelView = new MovieListViewModel
+            {
+                Genres = distinctGenres,
+                Ratings = distinctRatings,
+                Movies = allMovies
+            };
+
+
+            return View("ListMovies", modelView);
+        }
+        [HttpGet]
+        public async Task<IActionResult> EditCommentGet(string commentId)
+        {
+            CommentViewModel viewModelSaved = new CommentViewModel();
+            if (string.IsNullOrEmpty(commentId))
+            {
+                return BadRequest();
+            }
+            if (HttpContext.Request.Cookies.TryGetValue("userId", out string userIdSaved)
+               && HttpContext.Request.Cookies.TryGetValue("MovieId", out string movieIdSaved))
+            {
+              
+                var movie = await GetMovieByMovieIdAsync(movieIdSaved);
+                List<MovieComment> comments = movie.movieComments;
+                CommentViewModel viewModel = new CommentViewModel
+                {
+                    UserId = userIdSaved,
+                    MovieId = movieIdSaved,
+                    IsEditing = true,
+                    MovieComments = comments
+                };
+                viewModelSaved = viewModel;
+            }
+            // Return the view for editing the comment
+            return View("ListComments", viewModelSaved);
+        }
+
+       
+    }
 }

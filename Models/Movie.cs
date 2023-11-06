@@ -38,5 +38,7 @@ namespace _301222912_abraham_mehta_Lab3.Models
         public string userId { get; set; }
         public string comment { get; set; }
         public string commentedTime { get; set; }
+
+        public string commentId { get; set; }
     }
 }

@@ -1,0 +1,56 @@
+﻿@model CommentViewModel
+
+@{
+    ViewData["Title"] = "Add Comments";
+}
+
+<h1>Add Comments</h1>
+  @if (Model.MovieComments != null && Model.MovieComments.Count >0){
+<div>
+    <h3>Existing Comments</h3>
+    <ul>
+      
+        <form asp-controller="Movie" asp-action="EditComment" method="post">
+        @foreach (var comment in Model.MovieComments)
+        {
+          
+            <li>
+                <strong>@comment.userId</strong> said on @comment.commentedTime:
+                
+                    @if (Model.IsEditing && Model.UserId == comment.userId)
+                    {
+                    <textarea class="form-control" name="editedComment">@comment.comment</textarea>
+                    <input type="hidden" name="commentId" value="@comment.commentId" />
+                    <button type="submit" class="btn btn-sm btn-primary">Save Changes</button>
+                }
+                else
+                {
+                    
+                    @comment.comment
+                    DateTime commentTime = DateTime.Parse(comment.commentedTime);
+                    TimeSpan timeSinceComment = DateTime.Now - commentTime;
+                    bool isEditable = timeSinceComment.TotalHours <= 24;
+                        @if (Model.UserId == comment.userId && isEditable)
+                    {
+                     <button type="submit" asp-controller="Movie" asp-action="EditCommentGet" asp-route-commentId="@comment.commentId" class="btn btn-sm btn-primary">Edit</button>
+                    }
+                }
+            </li>
+        }
+        </form>
+        
+    </ul>
+</div>
+}
+<div>
+    <h3>Add a Comment</h3>
+    <form asp-controller="Movie" asp-action="AddComment" method="post">
+        <div class="form-group">
+            <label for="comment">Your Comment:</label>
+            <textarea class="form-control" id="comment" name="comment"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Comment</button>
+    </form>
+</div>
+
+
