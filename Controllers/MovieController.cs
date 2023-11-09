@@ -155,7 +155,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
             if (selectedRating > 0)
             {
-                movies = movies.Where(movie => movie.movieRating >= selectedRating).ToList();
+                movies = movies.Where(movie => movie.movieRating == selectedRating).ToList();
             }
 
             return movies;
@@ -295,7 +295,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             return null;
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> DeleteMovie(string movieId)
         {
             bool dynamoDeleteStatus;
@@ -336,6 +336,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             };
             string userId = HttpContext.Request.Cookies["userId"];
             Response.Cookies.Append("MovieId", movieId, cookieOptions);
+            HttpContext.Request.Cookies.TryGetValue("Firstname", out string firstname);
 
             var movie = await GetMovieByMovieIdAsync(movieId);
             List<MovieComment> comments = movie.movieComments;
@@ -343,6 +344,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             {
                 UserId = userId,
                 MovieId = movieId,
+                Firstname = firstname,
                 MovieComments = comments
             };
 
@@ -415,14 +417,23 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
             return View("ListMovies", modelView);
         }
-        [HttpGet]
-        public async Task<IActionResult> EditCommentGet(string commentId)
+        [HttpGet("editComment")]
+        public async Task<IActionResult> EditCommentGet([FromQuery] string commentId,string editedComment)
         {
             CommentViewModel viewModelSaved = new CommentViewModel();
             if (string.IsNullOrEmpty(commentId))
             {
                 return BadRequest();
             }
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddYears(1), // Set the expiration date (adjust as needed)
+                IsEssential = true // Make the cookie essential for sessions
+            };
+            HttpContext.Request.Cookies.TryGetValue("Firstname", out string firstname);
+ 
+
+             Response.Cookies.Append("commentId", commentId, cookieOptions);
             if (HttpContext.Request.Cookies.TryGetValue("userId", out string userIdSaved)
                && HttpContext.Request.Cookies.TryGetValue("MovieId", out string movieIdSaved))
             {
@@ -434,6 +445,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
                     UserId = userIdSaved,
                     MovieId = movieIdSaved,
                     IsEditing = true,
+                    Firstname = firstname,
                     MovieComments = comments
                 };
                 viewModelSaved = viewModel;
@@ -441,7 +453,48 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             // Return the view for editing the comment
             return View("ListComments", viewModelSaved);
         }
+        [HttpPost]
+        public async Task<IActionResult> EditCommentPost([FromQuery] string commentId,String editedComment)
+        {
+            HttpContext.Request.Cookies.TryGetValue("commentid", out commentId);
+            if (string.IsNullOrEmpty(commentId))
+            {
+                return BadRequest();
+            }
+            if (HttpContext.Request.Cookies.TryGetValue("userId", out string userIdSaved)
+               && HttpContext.Request.Cookies.TryGetValue("MovieId", out string movieIdSaved))
+            {
 
-       
+                var movie = await GetMovieByMovieIdAsync(movieIdSaved);
+                foreach (MovieComment cmnt in movie.movieComments)
+                {
+                    if (cmnt.commentId.Equals(commentId))
+                    {
+                        cmnt.comment = editedComment;
+                        cmnt.commentedTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                }
+                await dBContext.SaveAsync(movie);
+
+                
+            }
+            // Return the view for editing the comment
+
+            var allMovies = await dBContext.ScanAsync<Movie>(new List<ScanCondition>()).GetRemainingAsync();
+            var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
+
+            // Create a model that includes distinct genres, distinct ratings, and the list of all movies
+            var modelView = new MovieListViewModel
+            {
+                Genres = distinctGenres,
+                Ratings = distinctRatings,
+                Movies = allMovies
+            };
+
+
+            return View("ListMovies", modelView);
+        }
+
+
     }
 }

@@ -162,7 +162,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            return View("Register");
         }
         [HttpPost]
         public IActionResult Register(User user)
@@ -172,10 +172,15 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
             {
                 _context.User.Add(user);
                 _context.SaveChanges();
-                return View("Login"); // Redirect to login page or another appropriate action.
+                return RedirectToAction("Index", "Home");  // Redirect to login page or another appropriate action.
             }
-
-            return View(user); // Return the registration view with validation errors.
+            else
+            {
+                
+                    return View();
+                
+            }
+               // Return the registration view with validation errors.
         }
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
@@ -193,6 +198,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
                 };
 
                 Response.Cookies.Append("UserId", user.UserId.ToString(), cookieOptions);
+                Response.Cookies.Append("Firstname", user.FirstName, cookieOptions);
 
                 // Fetch distinct genres and ratings
                 var (distinctGenres, distinctRatings) = await FetchDistinctGenresAndRatingsAsync();
@@ -214,7 +220,7 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
 
             // Authentication failed; show an error message.
             ViewBag.ErrorMessage = "Invalid username or password";
-            return View("Login"); // Return the login view with an error message.
+            return RedirectToAction("Index", "Home");  // Return the login view with an error message.
         }
         private async Task<(List<string> genres, List<double> ratings)> FetchDistinctGenresAndRatingsAsync()
         {

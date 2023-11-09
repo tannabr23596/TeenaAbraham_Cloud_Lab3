@@ -28,5 +28,14 @@ namespace _301222912_abraham_mehta_Lab3.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        [HttpGet]
+        public IActionResult LogOut()
+        {
+            Response.Cookies.Delete("userId");
+            Response.Cookies.Delete("MovieId");
+            Response.Cookies.Delete("Firstname");
+            Response.Cookies.Delete("commentid");
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

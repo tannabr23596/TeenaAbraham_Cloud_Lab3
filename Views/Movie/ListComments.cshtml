@@ -10,18 +10,33 @@
     <h3>Existing Comments</h3>
     <ul>
       
-        <form asp-controller="Movie" asp-action="EditComment" method="post">
+        
         @foreach (var comment in Model.MovieComments)
         {
           
             <li>
-                <strong>@comment.userId</strong> said on @comment.commentedTime:
+                    @if ( Model.UserId == comment.userId)
+                    {
+                <div>
+                       <strong>@Model.Firstname</strong> said on @comment.commentedTime:
+                        </div>
+                    }
+                    else
+                    {
+                                      <div>
+                                   <strong>@comment.userId</strong> said on @comment.commentedTime:
+                                    </div>
+                    }
                 
                     @if (Model.IsEditing && Model.UserId == comment.userId)
                     {
-                    <textarea class="form-control" name="editedComment">@comment.comment</textarea>
-                    <input type="hidden" name="commentId" value="@comment.commentId" />
+                                 <form asp-controller="Movie" asp-action="EditCommentPost" method="post">
+                    <div class="form-group">
+                        <textarea class="form-control" name="editedComment">@comment.comment</textarea>
+                        <input type="hidden" name="commentId" value="@comment.comment" />
+                    </div>
                     <button type="submit" class="btn btn-sm btn-primary">Save Changes</button>
+                </form>
                 }
                 else
                 {
@@ -32,12 +47,14 @@
                     bool isEditable = timeSinceComment.TotalHours <= 24;
                         @if (Model.UserId == comment.userId && isEditable)
                     {
-                     <button type="submit" asp-controller="Movie" asp-action="EditCommentGet" asp-route-commentId="@comment.commentId" class="btn btn-sm btn-primary">Edit</button>
+                                     
+                     <a href="/editComment?commentId=@comment.commentId" class="btn btn-sm btn-primary">Edit</a>
+                                            
                     }
                 }
             </li>
         }
-        </form>
+       
         
     </ul>
 </div>

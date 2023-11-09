@@ -43,14 +43,14 @@
                             <p class="card-text"><strong>Directors:</strong> @string.Join(", ", movie.movieDirectors)</p>
                             <p class="card-text"><strong>Release Time:</strong> @movie.movieReleaseTime</p>
                         </div>
-                        <div class="card-footer text-center">
-                            <div class="btn-group">
-                                        <a class="btn btn-primary" asp-controller="Movie" asp-action="EditMovie" asp-route-movieId="@movie.movieId">Edit</a>
-                            <span> <a class="btn btn-danger" asp-controller="Movie" asp-action="DeleteMovie" asp-route-movieId="@movie.movieId">Delete</a></span>
-                           <span><a class="btn btn-info" asp-controller="Movie" asp-action="GiveComments" asp-route-movieId="@movie.movieId">Comment</a></span>
+                           <div class="card-footer text-center">
+        <div class="btn-group">
+            <a class="btn btn-primary" asp-controller="Movie" asp-action="EditMovie" asp-route-movieId="@movie.movieId">Edit</a>
+            <a class="btn btn-danger ml-2" asp-controller="Movie" asp-action="DeleteMovie" asp-route-movieId="@movie.movieId">Delete</a>
+            <a class="btn btn-info ml-2" asp-controller="Movie" asp-action="GiveComments" asp-route-movieId="@movie.movieId">Comment</a>
+        </div>
+    </div>
 
-                            </div>
-                        </div>
                     </div>
                 </div>
     }
